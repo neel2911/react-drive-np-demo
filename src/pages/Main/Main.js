@@ -1,29 +1,80 @@
-import React from 'react';
-import './Main.css';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 
-export default () => {
-    return (
-        <div className="main-container">
-            <div className="folder-section">
-                <div className="section-title">
-                    Folders
+import './Main.css';
+import Folder from '../../components/Folder';
+import File from '../../components/File';
+import { GetAction } from '../../actions/GetAction';
+import { SelectedAction } from '../../actions/SelectedAction';
+import { DeleteAction } from '../../actions/DeleteAction';
+
+
+class Main extends Component {
+
+
+    onItemDblClick = (file) => {
+        console.log(file);
+        this.props.dispatch(SelectedAction(file.parents[0]))
+        this.props.dispatch(GetAction(file.id));
+    }
+
+    onItemClick = (file) => {
+        this.props.dispatch(SelectedAction(file))
+    }
+
+    onDeleteClick = (file) => {
+        this.props.dispatch(DeleteAction(this.props.fileReducer.slectedFolderId.id))
+    }
+    onBackClick = () => {
+        this.props.dispatch(GetAction(this.props.fileReducer.slectedFolderId.id));
+    }
+    onDownloadClick = () => {
+        window.location = this.props.fileReducer.slectedFolderId.webContentLink;
+    }
+    render() {
+        const folders = this.props.files.filter((file) => {
+            return file.mimeType === "application/vnd.google-apps.folder" && file;
+        }).map((file) => {
+            return <Folder key={file.id} name={file.name} onFolderDblClick={() => { this.onItemDblClick(file) }} onFolderClick={() => { this.onItemClick(file) }} />
+        })
+        const files = this.props.files.filter((file) => {
+            return file.mimeType !== "application/vnd.google-apps.folder" && file;
+        }).map((file) => {
+            return <File key={file.id} name={file.name} thumbnailLink={file.thumbnailLink} iconLink={file.iconLink} onFileClick={() => { this.onItemClick(file) }} />
+        })
+        return (
+            <div className="main-container" >
+                <button type="button" className="google-button" onClick={this.onBackClick}>
+                    <span className="google-button__text">Back</span>
+                </button>
+                <button type="button" className="google-button" onClick={this.onDeleteClick}>
+                    <span className="google-button__text">Delete</span>
+                </button>
+                <button type="button" className="google-button" onClick={this.onDownloadClick}>
+                    <span className="google-button__text">Download</span>
+                </button>
+                {folders.length > 0 ? (<div className="folder-section">
+                    <div className="section-title">
+                        Folders
                 </div>
-                <div className="card-folder">
-                    <svg x="0px" y="0px" focusable="false" viewBox="0 0 24 24" height="24px" width="24px" fill="#8f8f8f"><g><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"></path><path d="M0 0h24v24H0z" fill="none"></path></g></svg>
-                    <span>New Folder</span>
+                    {folders}
+                </div>) : null}
+                {files.length > 0 ? (<div className="item-section">
+                    <div className="section-title">
+                        Files
                 </div>
+                    {files}
+                </div>) : null}
             </div>
-            <div className="item-section">
-                <div className="section-title">
-                    Items
-                </div>
-                <div className="card-item">
-                    <img src="https://png.pngtree.com/png-clipart/20190603/original/pngtree-glare-png-image_115149.jpg" alt="5 Terre" />
-                    <div className="container">
-                        <p>Cinque Terre</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    )
+        )
+    }
 }
+
+const mapStateToProps = (state) => {
+    return {
+        fileReducer: state.fileReducer,
+        authReducer: state.authReducer
+    }
+}
+
+export default connect(mapStateToProps)(Main);

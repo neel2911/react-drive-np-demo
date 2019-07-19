@@ -8,10 +8,14 @@ import gapi from 'gapi-client';
 
 import * as types from './utilities/Config';
 import './App.css';
+import { GetAction } from './actions/GetAction';
 class App extends Component {
   state = {
     isAuthorized: true,
     isGAPIReady: false
+  }
+  constructor(props) {
+    super(props);
   }
 
   // authOperation = () => {
@@ -92,53 +96,6 @@ class App extends Component {
   uploadFile = (e) => {
 
     // console.log(e.target.files);
-    var file = document.querySelector('#file').files[0];
-
-
-    const boundary = 'reactdrive';
-    const delimiter = "\r\n--" + boundary + "\r\n";
-    const close_delim = "\r\n--" + boundary + "--";
-    let reader = new FileReader();
-    reader.readAsBinaryString(file);
-
-    reader.onload = (e) => {
-
-      var contentType = file.type || 'application/octet-stream';
-      var metadata = {
-        name: file.name,
-        mimeType: contentType
-      };
-      var base64Data = btoa(reader.result.toString());
-
-      var multipartRequestBody =
-        delimiter +
-        'Content-Type: application/json\r\n\r\n' +
-        JSON.stringify(metadata) +
-        delimiter +
-        'Content-Type: ' + contentType + '\r\n' +
-        'Content-Transfer-Encoding: base64\r\n' +
-        '\r\n' +
-        base64Data +
-        close_delim;
-
-
-      var request2 = gapi.client.request({
-        'path': '/upload/drive/v3/files',
-        'method': 'POST',
-        'params': { 'uploadType': 'multipart' },
-        'headers': {
-          'Content-Type': 'multipart/mixed; boundary="' + boundary + '"'
-        },
-        'body': multipartRequestBody
-      });
-
-
-      // Execute the API request.
-      request2.execute(function (response) {
-        console.log(response);
-      });
-    }
-
   }
 
   loadGoogleApi = () => {
@@ -159,11 +116,11 @@ class App extends Component {
   render() {
     const bodyData = (
       <div>
-        <Header signin={this.login} signout={this.signout} isAuthorized={this.props.authReducer.loggedIn} />
+        <Header isAuthorized={this.props.authReducer.loggedIn} />
         {this.props.authReducer.loggedIn === true ? (
           <div>
             <LeftPanel />
-            <Main />
+            <Main files={this.props.fileReducer.files} />
           </div>
         ) : 'auth required'}
 
@@ -179,14 +136,16 @@ class App extends Component {
     );
   }
 
-
-
-
+  componentDidUpdate() {
+    if (this.state.isGAPIReady === true && (this.props.fileReducer.files == null || this.props.fileReducer.files.length <= 0)) {
+      this.props.dispatch(GetAction('root'));
+    }
+  }
 }
 
 const mapStateToProps = (state) => {
   return {
-    loginReducer: state.loginReducer,
+    fileReducer: state.fileReducer,
     authReducer: state.authReducer
   }
 }

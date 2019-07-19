@@ -5,6 +5,7 @@ import gapi from 'gapi-client';
 const login = () => {
     let googleAuth = gapi.auth2.getAuthInstance();
     return (dispatch) => {
+        googleAuth.signOut();
         googleAuth.isSignedIn.listen(() => {
             if (googleAuth.isSignedIn.get()) {
                 dispatch({ type: 'LOGIN', payload: googleAuth.currentUser.get().getAuthResponse() })
