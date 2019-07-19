@@ -14,8 +14,12 @@ class Main extends Component {
 
     onItemDblClick = (file) => {
         console.log(file);
-        this.props.dispatch(SelectedAction(file.parents[0]))
-        this.props.dispatch(GetAction(file.id));
+        this.props.dispatch(SelectedAction(file.parents[0]));
+        if (file.mimeType === "application/vnd.google-apps.folder") {
+            this.props.dispatch(GetAction(file.id));
+        } else {
+            window.open(file.webViewLink, '_blank');
+        }
     }
 
     onItemClick = (file) => {
@@ -40,7 +44,7 @@ class Main extends Component {
         const files = this.props.files.filter((file) => {
             return file.mimeType !== "application/vnd.google-apps.folder" && file;
         }).map((file) => {
-            return <File key={file.id} name={file.name} thumbnailLink={file.thumbnailLink} iconLink={file.iconLink} onFileClick={() => { this.onItemClick(file) }} />
+            return <File key={file.id} name={file.name} thumbnailLink={file.thumbnailLink} iconLink={file.iconLink} onFileDblClick={() => { this.onItemDblClick(file) }} onFileClick={() => { this.onItemClick(file) }} />
         })
         return (
             <div className="main-container" >
