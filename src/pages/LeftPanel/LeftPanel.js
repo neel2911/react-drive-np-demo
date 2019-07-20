@@ -1,14 +1,26 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { UploadFileAction } from '../../actions/UploadFileAction';
-import { CreateAction } from '../../actions/CreateAction';
+
+import HttpAction from '../../redux/actions/HttpAction';
+
+import Modal from '../../components/Modal/Modal';
 import './LeftPanel.css';
 
 class LeftPanel extends Component {
-    state = {
-        folderName: ''
+    httpService = null;
+    authService = null;
+
+    constructor(props) {
+        super(props);
+        this.httpService = props.httpService;
+        this.authService = props.authService;
     }
-    
+
+    state = {
+        folderName: 'New Folder',
+        isModalOpen: false
+    }
+
     onFileUploadClick = (e) => {
         const file = e.target.files[0];
 
@@ -19,14 +31,14 @@ class LeftPanel extends Component {
         reader.readAsBinaryString(file);
 
         reader.onload = (e) => {
-            var contentType = file.type || 'application/octet-stream';
-            var metadata = {
+            const contentType = file.type || 'application/octet-stream';
+            const metadata = {
                 name: file.name,
-                mimeType: contentType
+                mimeType: contentType,
+                parents: [this.props.httpReducer.breadBrumbs[this.props.httpReducer.breadBrumbs.length - 1].id]
             };
-            var base64Data = btoa(reader.result.toString());
-
-            var multipartRequestBody =
+            const base64Data = btoa(reader.result.toString());
+            const multipartRequestBody =
                 delimiter +
                 'Content-Type: application/json\r\n\r\n' +
                 JSON.stringify(metadata) +
@@ -37,16 +49,28 @@ class LeftPanel extends Component {
                 base64Data +
                 close_delim;
 
-            this.props.dispatch(UploadFileAction({ boundary, multipartRequestBody }));
+            this.httpService.upload(boundary, multipartRequestBody).execute((result) => {
+                this.props.dispatch(HttpAction.upload());
+                this.props.dispatch(HttpAction.get(this.httpService.get(this.props.httpReducer.breadBrumbs[this.props.httpReducer.breadBrumbs.length - 1].id)));
+            });
         }
     }
 
-    onTextValueChange = (evt) => {
-        this.setState({ folderName: evt.target.value });
+    openModal = () => {
+        this.setState({ isModalOpen: true });
     }
 
     onCreateNewFolderClick = () => {
-        this.props.dispatch(CreateAction(this.state.folderName));
+        this.httpService.create(this.state.folderName, this.props.httpReducer.breadBrumbs[this.props.httpReducer.breadBrumbs.length - 1].id).execute((result) => {
+            this.props.dispatch(HttpAction.create());
+            this.props.dispatch(HttpAction.get(this.httpService.get(this.props.httpReducer.breadBrumbs[this.props.httpReducer.breadBrumbs.length - 1].id)));
+
+            this.setState({ folderName: 'New Folder', isModalOpen: false });
+        });
+    }
+
+    onInputChange = (e) => {
+        this.setState({ folderName: e.target.value });
     }
 
     render() {
@@ -56,11 +80,10 @@ class LeftPanel extends Component {
                     <button className="btn">Upload a file</button>
                     <input type="file" name="myfile" onChange={this.onFileUploadClick} />
                 </div>
-                <input type="text" name="title" value={this.state.folderName}
-                    onChange={this.onTextValueChange} />
-                <button type="button" className="google-button" onClick={this.onCreateNewFolderClick}>
+                <button type="button" className="google-button" onClick={this.openModal}>
                     <span className="google-button__text">New Folder</span>
                 </button>
+                {this.state.isModalOpen ? <Modal onInputChange={(e) => this.onInputChange(e)} onCreateNewFolderClick={this.onCreateNewFolderClick} /> : null}
             </div>
         )
     }
@@ -68,7 +91,7 @@ class LeftPanel extends Component {
 
 const mapStateToProps = (state) => {
     return {
-        loginReducer: state.loginReducer,
+        httpReducer: state.httpReducer,
         authReducer: state.authReducer
     }
 }

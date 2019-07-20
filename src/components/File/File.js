@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default ({ name, thumbnailLink, iconLink, onFileClick, onFileDblClick }) => {
+export default  ({ name, thumbnailLink, iconLink, onFileClick, onFileDblClick }) => {
     return (
         <div className="card-item" onClick={onFileClick} onDoubleClick={onFileDblClick}>
             <img src={thumbnailLink} alt={name} />

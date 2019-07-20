@@ -1,9 +1,38 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { AuthAction } from '../../actions/AuthAction';
+
+import HttpAction from '../../redux/actions/HttpAction';
+import AuthAction from '../../redux/actions/AuthAction';
+
 import './Header.css';
 
 class Header extends Component {
+    httpService = null;
+    authService = null;
+
+    constructor(props) {
+        super(props);
+        this.httpService = props.httpService;
+        this.authService = props.authService;
+    }
+
+    onLoginClick = () => {
+        this.authService.login(this.loginSuccessCB);
+    }
+
+    loginSuccessCB = (isLogin) => {
+        console.log(isLogin);
+        if (isLogin) {
+            this.props.dispatch(AuthAction.login(isLogin))
+            this.props.dispatch(HttpAction.get(this.httpService.get('root')));
+        }
+    }
+
+    onLogoutClick = () => {
+        this.authService.logout();
+        this.props.dispatch(AuthAction.logout());
+    }
+
     render() {
         return (
             <div className="header-container" >
@@ -13,10 +42,10 @@ class Header extends Component {
                 <div className="profile-section">
                     {
                         this.props.isAuthorized === true ?
-                            <button type="button" className="google-button" onClick={this.props.onLogoutClick}>
+                            <button type="button" className="google-button" onClick={this.onLogoutClick}>
                                 <span className="google-button__text">Sign Out</span>
                             </button> :
-                            <button type="button" className="google-button" onClick={this.props.onLoginClick}>
+                            <button type="button" className="google-button" onClick={this.onLoginClick}>
                                 <span className="google-button__icon">
                                     <svg viewBox="0 0 366 372" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M125.9 10.2c40.2-13.9 85.3-13.6 125.3 1.1 22.2 8.2 42.5 21 59.9 37.1-5.8 6.3-12.1 12.2-18.1 18.3l-34.2 34.2c-11.3-10.8-25.1-19-40.1-23.6-17.6-5.3-36.6-6.1-54.6-2.2-21 4.5-40.5 15.5-55.6 30.9-12.2 12.3-21.4 27.5-27 43.9-20.3-15.8-40.6-31.5-61-47.3 21.5-43 60.1-76.9 105.4-92.4z" id="Shape" fill="#EA4335" />
@@ -35,17 +64,4 @@ class Header extends Component {
 
 }
 
-const mapStateToProps = (state) => {
-    return {
-        loginReducer: state.loginReducer
-    }
-}
-
-const mapDispatchToProps = (dispatch) => {
-    return {
-        onLoginClick: () => dispatch(AuthAction.login()),
-        onLogoutClick: () => dispatch(AuthAction.logout())
-    }
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(Header);
+export default connect()(Header);

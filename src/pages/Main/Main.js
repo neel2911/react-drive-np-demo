@@ -1,62 +1,110 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
+import HttpAction from '../../redux/actions/HttpAction';
+
+import BreadCrumb from '../../components/BreadCrumb/BreadCrumb';
+import Folder from '../../components/Folder/Folder';
+import File from '../../components/File/File';
+
 import './Main.css';
-import Folder from '../../components/Folder';
-import File from '../../components/File';
-import { GetAction } from '../../actions/GetAction';
-import { SelectedAction } from '../../actions/SelectedAction';
-import { DeleteAction } from '../../actions/DeleteAction';
-
-
 class Main extends Component {
+    httpService = null;
+    authService = null;
+    state = {
+        selectedItem: {
+            isSelected: false,
+            file: null
+        }
+    };
 
+    constructor(props) {
+        super(props);
+        this.httpService = props.httpService;
+        this.authService = props.authService;
+    }
 
     onItemDblClick = (file) => {
-        console.log(file);
-        this.props.dispatch(SelectedAction(file.parents[0]));
         if (file.mimeType === "application/vnd.google-apps.folder") {
-            this.props.dispatch(GetAction(file.id));
+            this.props.dispatch(HttpAction.breadCrumbAdd(file));
+            this.props.dispatch(HttpAction.get(this.httpService.get(file.id)));
         } else {
-            window.open(file.webViewLink, '_blank');
+            this.httpService.view(file.webViewLink);
         }
     }
 
-    onItemClick = (file) => {
-        this.props.dispatch(SelectedAction(file))
+    onOtherClick = () => {
+        this.setState({
+            selectedItem: {
+                isSelected: false,
+                file: null
+            }
+        });
     }
 
-    onDeleteClick = (file) => {
-        this.props.dispatch(DeleteAction(this.props.fileReducer.slectedFolderId.id))
+    onItemClick = (e, file) => {
+        e.stopPropagation();
+        if (file.mimeType !== "application/vnd.google-apps.folder") {
+            this.setState({
+                selectedItem: {
+                    isSelected: true,
+                    file: file
+                }
+            });
+        }
     }
-    onBackClick = () => {
-        this.props.dispatch(GetAction(this.props.fileReducer.slectedFolderId.id));
+
+    onDeleteClick = () => {
+        this.httpService.delete(this.state.selectedItem.file.id).execute((result) => {
+            this.props.dispatch(HttpAction.delete());
+            this.props.dispatch(HttpAction.get(this.httpService.get(this.props.httpReducer.breadBrumbs[this.props.httpReducer.breadBrumbs.length - 1].id)));
+        });
     }
+
     onDownloadClick = () => {
-        window.location = this.props.fileReducer.slectedFolderId.webContentLink;
+        if (this.state.selectedItem.isSelected) {
+            this.httpService.download(this.state.selectedItem.file.webContentLink);
+        }
+    }
+
+    onBreadCrumbClick = (breadBrumb) => {
+        const newBreadBrumbs = [...this.props.httpReducer.breadBrumbs];
+        const selectedBreadBrumb = this.props.httpReducer.breadBrumbs.findIndex((breadBrumbData) => breadBrumbData.id === breadBrumb.id);
+        if (this.props.httpReducer.breadBrumbs.length - 1 > selectedBreadBrumb) {
+            this.props.dispatch(HttpAction.get(this.httpService.get(this.props.httpReducer.breadBrumbs[selectedBreadBrumb].id)));
+            newBreadBrumbs.length = selectedBreadBrumb + 1;
+            this.props.dispatch(HttpAction.breadCrumbRemove(newBreadBrumbs));
+        }
     }
     render() {
+        const breadCrumbs = this.props.httpReducer.breadBrumbs.map((breadBrumb) => {
+            return <BreadCrumb key={breadBrumb.id} name={breadBrumb.name} onBreadCrumbClick={() => this.onBreadCrumbClick(breadBrumb)} />
+        });
         const folders = this.props.files.filter((file) => {
             return file.mimeType === "application/vnd.google-apps.folder" && file;
         }).map((file) => {
-            return <Folder key={file.id} name={file.name} onFolderDblClick={() => { this.onItemDblClick(file) }} onFolderClick={() => { this.onItemClick(file) }} />
+            return <Folder key={file.id} name={file.name} onFolderDblClick={() => { this.onItemDblClick(file) }} onFolderClick={(e) => { this.onItemClick(e, file) }} />
         })
         const files = this.props.files.filter((file) => {
             return file.mimeType !== "application/vnd.google-apps.folder" && file;
         }).map((file) => {
-            return <File key={file.id} name={file.name} thumbnailLink={file.thumbnailLink} iconLink={file.iconLink} onFileDblClick={() => { this.onItemDblClick(file) }} onFileClick={() => { this.onItemClick(file) }} />
+            return <File key={file.id} name={file.name} thumbnailLink={file.thumbnailLink} iconLink={file.iconLink} onFileDblClick={() => { this.onItemDblClick(file) }} onFileClick={(e) => { this.onItemClick(e, file) }} />
         })
         return (
-            <div className="main-container" >
-                <button type="button" className="google-button" onClick={this.onBackClick}>
-                    <span className="google-button__text">Back</span>
-                </button>
-                <button type="button" className="google-button" onClick={this.onDeleteClick}>
-                    <span className="google-button__text">Delete</span>
-                </button>
-                <button type="button" className="google-button" onClick={this.onDownloadClick}>
-                    <span className="google-button__text">Download</span>
-                </button>
+            <div className="main-container" onClick={this.onOtherClick}>
+                <div className="breadcrum-container">
+                    {breadCrumbs}
+                </div>
+                {this.state.selectedItem.isSelected ? (
+                    <div>
+                        <button type="button" className="google-button" onClick={this.onDeleteClick}>
+                            <span className="google-button__text">Delete</span>
+                        </button>
+                        <button type="button" className="google-button" onClick={this.onDownloadClick}>
+                            <span className="google-button__text">Download</span>
+                        </button>
+                    </div>
+                ) : null}
                 {folders.length > 0 ? (<div className="folder-section">
                     <div className="section-title">
                         Folders
@@ -76,7 +124,7 @@ class Main extends Component {
 
 const mapStateToProps = (state) => {
     return {
-        fileReducer: state.fileReducer,
+        httpReducer: state.httpReducer,
         authReducer: state.authReducer
     }
 }
