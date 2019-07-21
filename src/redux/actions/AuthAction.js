@@ -1,13 +1,15 @@
+import * as _const from '../../utilities/shared/ConstType';
+
 // Action
 const login = (isLogin) => {
     return (dispatch) => {
-        dispatch({ type: 'LOGIN', payload: isLogin });
+        dispatch({ type: _const.LOGIN, payload: isLogin });
     }
 }
 
 const logout = () => {
     return (dispatch) => {
-        dispatch({ type: 'LOGOUT' });
+        dispatch({ type: _const.LOGOUT });
     }
 }
 

@@ -4,8 +4,9 @@
     width: calc(100% - 201px);
     display: inline-block;
     vertical-align: top;
-    height: calc(100vh - 50px);
+    height: calc(100vh - 60px);
     overflow: scroll;
+    overflow-x: hidden;
     .main-header-container{
         width: 100%;
         padding: 10px;

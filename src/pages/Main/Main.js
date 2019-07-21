@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
+import * as _const from '../../utilities/shared/ConstType';
 import HttpAction from '../../redux/actions/HttpAction';
 
 import BreadCrumb from '../../components/BreadCrumb/BreadCrumb';
@@ -26,7 +27,7 @@ class Main extends Component {
     }
 
     onItemDblClick = (file) => {
-        if (file.mimeType === "application/vnd.google-apps.folder") {
+        if (file.mimeType === _const.FOLDER_MIME_TYPE) {
             this.props.dispatch(HttpAction.breadCrumbAdd(file));
             this.props.dispatch(HttpAction.get(this.httpService.get(file.id)));
         } else {
@@ -45,7 +46,7 @@ class Main extends Component {
 
     onItemClick = (e, file) => {
         e.stopPropagation();
-        if (file.mimeType !== "application/vnd.google-apps.folder") {
+        if (file.mimeType !== _const.FOLDER_MIME_TYPE) {
             this.setState({
                 selectedItem: {
                     isSelected: true,
@@ -82,12 +83,12 @@ class Main extends Component {
             return <BreadCrumb key={breadBrumb.id} name={breadBrumb.name} onBreadCrumbClick={() => this.onBreadCrumbClick(breadBrumb)} />
         });
         const folders = this.props.files.filter((file) => {
-            return file.mimeType === "application/vnd.google-apps.folder" && file;
+            return file.mimeType === _const.FOLDER_MIME_TYPE && file;
         }).map((file) => {
             return <Folder key={file.id} name={file.name} onFolderDblClick={() => { this.onItemDblClick(file) }} onFolderClick={(e) => { this.onItemClick(e, file) }} />
         })
         const files = this.props.files.filter((file) => {
-            return file.mimeType !== "application/vnd.google-apps.folder" && file;
+            return file.mimeType !== _const.FOLDER_MIME_TYPE && file;
         }).map((file) => {
             return <File key={file.id} name={file.name} thumbnailLink={file.thumbnailLink} iconLink={file.iconLink} onFileDblClick={() => { this.onItemDblClick(file) }} onFileClick={(e) => { this.onItemClick(e, file) }} />
         })

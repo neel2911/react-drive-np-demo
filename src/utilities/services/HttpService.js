@@ -1,6 +1,7 @@
 import gapi from 'gapi-client';
 import axios from 'axios';
 
+import * as _const from '../../utilities/shared/ConstType';
 
 class HttpService {
     configData = null;
@@ -24,7 +25,7 @@ class HttpService {
     create = (folderName, parentId) => {
         const folder = {
             name: folderName,
-            mimeType: "application/vnd.google-apps.folder",
+            mimeType: _const.FOLDER_MIME_TYPE,
             parents: [parentId]
         };
 

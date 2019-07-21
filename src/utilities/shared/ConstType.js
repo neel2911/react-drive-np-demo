@@ -1,4 +1,11 @@
-export const API_KEY = 'AIzaSyC-Ax0yQKkFfmOF2X9VzLpDLlNMzs9XVd4';
-export const DISCOVERY_DOCS = ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'];
-export const CLIENT_ID = '796545501954-8atgr3ttr2vf3di69i0jovaghobkmusv.apps.googleusercontent.com';
-export const SCOPE = 'https://www.googleapis.com/auth/drive';
+export const LOADING = 'LOADING';
+export const CREATE_SUCCESS = 'CREATE_SUCCESS';
+export const UPLOAD_SUCCESS = 'UPLOAD_SUCCESS';
+export const DELETE_SUCCESS = 'DELETE_SUCCESS';
+export const INIT_SUCCESS = 'INIT_SUCCESS';
+export const GET_SUCCESS = 'GET_SUCCESS';
+export const BREADCRUMB_ADD = 'BREADCRUMB_ADD';
+export const BREADCRUMB_REMOVE = 'BREADCRUMB_REMOVE';
+export const LOGIN = 'LOGIN';
+export const LOGOUT = 'LOGOUT';
+export const FOLDER_MIME_TYPE = 'application/vnd.google-apps.folder';

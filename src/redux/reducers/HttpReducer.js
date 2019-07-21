@@ -1,3 +1,5 @@
+import * as _const from '../../utilities/shared/ConstType';
+
 
 const initialState = {
     isapiloaded: false,
@@ -12,44 +14,44 @@ const initialState = {
 // Reducer
 export default (state = initialState, action) => {
     switch (action.type) {
-        case 'LOADING':
+        case _const.LOADING:
             return {
                 ...state,
                 isLoading: true
             }
-        case 'CREATE_SUCCESS':
+        case _const.CREATE_SUCCESS:
             return {
                 ...state,
                 isLoading: false
             }
-        case 'UPLOAD_SUCCESS':
+        case _const.UPLOAD_SUCCESS:
             return {
                 ...state,
                 isLoading: false
             }
-        case 'DELETE_SUCCESS':
+        case _const.DELETE_SUCCESS:
             return {
                 ...state,
                 isLoading: false
             }
-        case 'INIT_SUCCESS':
+        case _const.INIT_SUCCESS:
             return {
                 ...state,
                 isapiloaded: true,
                 isLoading: false
             }
-        case 'GET_SUCCESS':
+        case _const.GET_SUCCESS:
             return {
                 ...state,
                 files: [...action.payload],
                 isLoading: false
             }
-        case 'BREADCRUMB_ADD':
+        case _const.BREADCRUMB_ADD:
             return {
                 ...state,
                 breadBrumbs: [...state.breadBrumbs, action.payload]
             }
-        case 'BREADCRUMB_REMOVE':
+        case _const.BREADCRUMB_REMOVE:
             return {
                 ...state,
                 breadBrumbs: [...action.payload]
