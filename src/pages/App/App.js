@@ -10,6 +10,8 @@ import AuthAction from '../../redux/actions/AuthAction';
 
 import LeftPanel from '../LeftPanel/LeftPanel';
 import Main from '../Main/Main';
+import Button from '../../components/Button/Button';
+
 import './App.scss';
 class App extends Component {
   httpService = null;
@@ -38,27 +40,39 @@ class App extends Component {
     }
   }
 
+  onLoginClick = () => {
+    this.authService.login(this.loginSuccessCB);
+  }
+
+  loginSuccessCB = (isLogin) => {
+    console.log(isLogin);
+    if (isLogin) {
+      this.props.dispatch(AuthAction.login(isLogin))
+      this.props.dispatch(HttpAction.get(this.httpService.get('root')));
+    }
+  }
+
   render() {
 
     const bodyData = (
-      <div>
+      <React.Fragment>
         <Header isAuthorized={this.props.authReducer.isAuthorized} httpService={this.httpService} authService={this.authService} />
         {this.props.authReducer.isAuthorized === true ? (
           <React.Fragment>
             <LeftPanel httpService={this.httpService} authService={this.authService} />
             <Main files={this.props.httpReducer.files} httpService={this.httpService} authService={this.authService} />
           </React.Fragment>
-        ) : 'Auth required'}
-
-      </div>
+        ) : <div className="auth-container">
+            <Button onButtonClick={this.onLoginClick} buttonText={'Sign in with Google'} />
+          </div>}
+      </React.Fragment>
     )
     return (
-      <div>
+      <React.Fragment>
         {
           this.state.isapiloaded === true ? bodyData : 'Loading...'
         }
-      </div>
-
+      </React.Fragment>
     );
   }
 }

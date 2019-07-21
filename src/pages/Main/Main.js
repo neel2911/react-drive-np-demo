@@ -8,6 +8,7 @@ import BreadCrumb from '../../components/BreadCrumb/BreadCrumb';
 import Card from '../../components/Card/Card';
 import Folder from '../../components/Folder/Folder';
 import File from '../../components/File/File';
+import Button from '../../components/Button/Button';
 
 import './Main.scss';
 class Main extends Component {
@@ -46,14 +47,12 @@ class Main extends Component {
 
     onItemClick = (e, file) => {
         e.stopPropagation();
-        if (file.mimeType !== _const.FOLDER_MIME_TYPE) {
-            this.setState({
-                selectedItem: {
-                    isSelected: true,
-                    file: file
-                }
-            });
-        }
+        this.setState({
+            selectedItem: {
+                isSelected: true,
+                file: file
+            }
+        });
     }
 
     onDeleteClick = () => {
@@ -85,12 +84,12 @@ class Main extends Component {
         const folders = this.props.files.filter((file) => {
             return file.mimeType === _const.FOLDER_MIME_TYPE && file;
         }).map((file) => {
-            return <Folder key={file.id} name={file.name} onFolderDblClick={() => { this.onItemDblClick(file) }} onFolderClick={(e) => { this.onItemClick(e, file) }} />
+            return <Folder key={file.id} name={file.name} onFolderClick={(e) => { this.onItemClick(e, file) }} />
         })
         const files = this.props.files.filter((file) => {
             return file.mimeType !== _const.FOLDER_MIME_TYPE && file;
         }).map((file) => {
-            return <File key={file.id} name={file.name} thumbnailLink={file.thumbnailLink} iconLink={file.iconLink} onFileDblClick={() => { this.onItemDblClick(file) }} onFileClick={(e) => { this.onItemClick(e, file) }} />
+            return <File key={file.id} name={file.name} thumbnailLink={file.thumbnailLink} iconLink={file.iconLink} onFileClick={(e) => { this.onItemClick(e, file) }} />
         })
         return (
             <div className="main-container" onClick={this.onOtherClick}>
@@ -103,12 +102,19 @@ class Main extends Component {
                     <div className="tool-section">
                         {this.state.selectedItem.isSelected ? (
                             <React.Fragment>
-                                <button type="button" className="google-button" onClick={this.onDeleteClick}>
-                                    <span className="google-button__text">Delete</span>
-                                </button>
-                                <button type="button" className="google-button" onClick={this.onDownloadClick}>
-                                    <span className="google-button__text">Download</span>
-                                </button>
+                                <div className="selected-file-section">
+                                    {this.state.selectedItem.file.name}
+                                </div>
+                                <div className="toolbar">
+                                    <Button onButtonClick={this.onDeleteClick} buttonText={'Delete'} />
+                                    {this.state.selectedItem.file.mimeType !== _const.FOLDER_MIME_TYPE ?
+                                        <React.Fragment>
+                                            <Button onButtonClick={this.onDownloadClick} buttonText={'Download'} />
+                                            <Button onButtonClick={() => this.onItemDblClick(this.state.selectedItem.file)} buttonText={'View'} />
+                                        </React.Fragment>
+                                        : <Button onButtonClick={() => this.onItemDblClick(this.state.selectedItem.file)} buttonText={'Open'} />
+                                    }
+                                </div>
                             </React.Fragment>
                         ) : null}
                     </div>
