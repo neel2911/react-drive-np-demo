@@ -10,7 +10,7 @@ import AuthAction from '../../redux/actions/AuthAction';
 
 import LeftPanel from '../LeftPanel/LeftPanel';
 import Main from '../Main/Main';
-import './App.css';
+import './App.scss';
 class App extends Component {
   httpService = null;
   authService = null;
@@ -44,11 +44,11 @@ class App extends Component {
       <div>
         <Header isAuthorized={this.props.authReducer.isAuthorized} httpService={this.httpService} authService={this.authService} />
         {this.props.authReducer.isAuthorized === true ? (
-          <div>
+          <React.Fragment>
             <LeftPanel httpService={this.httpService} authService={this.authService} />
             <Main files={this.props.httpReducer.files} httpService={this.httpService} authService={this.authService} />
-          </div>
-        ) : 'auth required'}
+          </React.Fragment>
+        ) : 'Auth required'}
 
       </div>
     )

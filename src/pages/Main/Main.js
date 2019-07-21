@@ -4,10 +4,11 @@ import { connect } from 'react-redux';
 import HttpAction from '../../redux/actions/HttpAction';
 
 import BreadCrumb from '../../components/BreadCrumb/BreadCrumb';
+import Card from '../../components/Card/Card';
 import Folder from '../../components/Folder/Folder';
 import File from '../../components/File/File';
 
-import './Main.css';
+import './Main.scss';
 class Main extends Component {
     httpService = null;
     authService = null;
@@ -92,31 +93,34 @@ class Main extends Component {
         })
         return (
             <div className="main-container" onClick={this.onOtherClick}>
-                <div className="breadcrum-container">
-                    {breadCrumbs}
-                </div>
-                {this.state.selectedItem.isSelected ? (
-                    <div>
-                        <button type="button" className="google-button" onClick={this.onDeleteClick}>
-                            <span className="google-button__text">Delete</span>
-                        </button>
-                        <button type="button" className="google-button" onClick={this.onDownloadClick}>
-                            <span className="google-button__text">Download</span>
-                        </button>
+                <div className="main-header-container">
+                    <div className="breadcrumb-section">
+                        <ul className="breadcrumb">
+                            {breadCrumbs}
+                        </ul>
                     </div>
-                ) : null}
-                {folders.length > 0 ? (<div className="folder-section">
-                    <div className="section-title">
-                        Folders
+                    <div className="tool-section">
+                        {this.state.selectedItem.isSelected ? (
+                            <React.Fragment>
+                                <button type="button" className="google-button" onClick={this.onDeleteClick}>
+                                    <span className="google-button__text">Delete</span>
+                                </button>
+                                <button type="button" className="google-button" onClick={this.onDownloadClick}>
+                                    <span className="google-button__text">Download</span>
+                                </button>
+                            </React.Fragment>
+                        ) : null}
+                    </div>
                 </div>
-                    {folders}
-                </div>) : null}
-                {files.length > 0 ? (<div className="item-section">
-                    <div className="section-title">
-                        Files
+                <div className="main-body-section">
+                    {folders.length > 0 ? (
+                        <Card className={'folder-section'} sectionName={'Folders'} items={folders} />
+                    ) : null}
+                    {files.length > 0 ? (
+                        <Card className={'item-section'} sectionName={'Files'} items={files} />
+                    ) : null}
                 </div>
-                    {files}
-                </div>) : null}
+
             </div>
         )
     }

@@ -4,7 +4,9 @@ import { connect } from 'react-redux';
 import HttpAction from '../../redux/actions/HttpAction';
 
 import Modal from '../../components/Modal/Modal';
-import './LeftPanel.css';
+import './LeftPanel.scss';
+import FileUpload from '../../components/FileUpload/FileUpload';
+import Button from '../../components/Button/Button';
 
 class LeftPanel extends Component {
     httpService = null;
@@ -73,17 +75,15 @@ class LeftPanel extends Component {
         this.setState({ folderName: e.target.value });
     }
 
+    onCancelClick = () => {
+        this.setState({ isModalOpen: false });
+    }
     render() {
         return (
             <div className="left-panel-container" >
-                <div className="upload-btn-wrapper">
-                    <button className="btn">Upload a file</button>
-                    <input type="file" name="myfile" onChange={this.onFileUploadClick} />
-                </div>
-                <button type="button" className="google-button" onClick={this.openModal}>
-                    <span className="google-button__text">New Folder</span>
-                </button>
-                {this.state.isModalOpen ? <Modal onInputChange={(e) => this.onInputChange(e)} onCreateNewFolderClick={this.onCreateNewFolderClick} /> : null}
+                <FileUpload onFileUploadClick={(e) => this.onFileUploadClick(e)} />
+                <Button onButtonClick={this.openModal} buttonText={'New Folder'} />
+                {this.state.isModalOpen ? <Modal onInputChange={(e) => this.onInputChange(e)} textValue={this.state.folderName} onCreateNewFolderClick={this.onCreateNewFolderClick} onCancelClick={this.onCancelClick} /> : null}
             </div>
         )
     }

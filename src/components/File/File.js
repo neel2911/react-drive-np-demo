@@ -1,12 +1,19 @@
 import React from 'react';
+import './File.scss';
 
-export default  ({ name, thumbnailLink, iconLink, onFileClick, onFileDblClick }) => {
+export default ({ name, thumbnailLink, iconLink, onFileClick, onFileDblClick }) => {
     return (
         <div className="card-item" onClick={onFileClick} onDoubleClick={onFileDblClick}>
-            <img src={thumbnailLink} alt={name} />
-            <div className="container">
-                <img src={iconLink} alt={name} style={{ width: '15px', height: '15px' }} />
-                <p>{name}</p>
+            <div className="image-container">
+                <img src={thumbnailLink} alt={name} />
+            </div>
+            <div className="data-container">
+                <div className="icon">
+                    <img src={iconLink} alt={name} />
+                </div>
+                <div className="text">
+                    <span>{name}</span>
+                </div>
             </div>
         </div>
     )

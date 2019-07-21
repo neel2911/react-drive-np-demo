@@ -1,6 +1,7 @@
 import React from 'react';
+import './Folder.scss';
 
-export default ({ name, onFolderClick ,onFolderDblClick }) => {
+export default ({ name, onFolderClick, onFolderDblClick }) => {
     return (
         <div className="card-folder" onDoubleClick={onFolderDblClick} onClick={onFolderClick}>
             <svg x="0px" y="0px" focusable="false" viewBox="0 0 24 24" height="24px" width="24px" fill="#8f8f8f">

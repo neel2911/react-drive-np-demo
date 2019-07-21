@@ -1,9 +1,10 @@
 import React from 'react';
+import './BreadCrumb.scss';
 
 export default ({ name, onBreadCrumbClick }) => {
     return (
-        <div className="breadcrumb-item" onClick={onBreadCrumbClick}>
-            {name}
-        </div>
+        <li className="breadcrumb-item" onClick={onBreadCrumbClick}>
+            <a href={'javascript:void(0)'} >{name}</a>
+        </li>
     )
 }
